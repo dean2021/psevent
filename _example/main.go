@@ -27,7 +27,7 @@ func main() {
 				}
 			case ev := <-event.Exit:
 				if ev != nil {
-					fmt.Println("============Fork", int32(ev.Pid))
+					fmt.Println("============Exit", int32(ev.Pid))
 				}
 			case err := <-event.Error:
 				if err != nil {
