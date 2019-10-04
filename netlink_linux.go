@@ -73,12 +73,12 @@ type exitProcEvent struct {
 }
 
 // standard netlink header + connector header
-type netlinkProcMessage struct {
+type NetLinkMessage struct {
 	Header syscall.NlMsghdr
 	Data   cnMsg
 }
 
-type netlinkListener struct {
+type NetLink struct {
 	addr *syscall.SockaddrNetlink // Netlink socket address
 	sock int                      // The syscall.Socket() file descriptor
 	seq  uint32                   // struct cn_msg.seq
@@ -86,14 +86,14 @@ type netlinkListener struct {
 
 // Initialize linux implementation of the eventListener interface
 func createListener() (eventListener, error) {
-	listener := &netlinkListener{}
-	err := listener.bind()
-	return listener, err
+	nl := &NetLink{}
+	err := nl.bind()
+	return nl, err
 }
 
 // Bind our netlink socket and
 // send a listen control message to the connector driver.
-func (listener *netlinkListener) bind() error {
+func (listener *NetLink) bind() error {
 
 	sock, err := syscall.Socket(
 		syscall.AF_NETLINK,
@@ -121,7 +121,7 @@ func (listener *netlinkListener) bind() error {
 
 // Send an ignore control message to the connector driver
 // and close our netlink socket.
-func (listener *netlinkListener) close() error {
+func (listener *NetLink) close() error {
 	err := listener.send(_PROC_CN_MCAST_IGNORE)
 	_ = syscall.Close(listener.sock)
 	return err
@@ -129,9 +129,9 @@ func (listener *netlinkListener) close() error {
 
 // Generic method for sending control messages to the connector
 // driver; where op is one of PROC_CN_MCAST_{LISTEN,IGNORE}
-func (listener *netlinkListener) send(op uint32) error {
+func (listener *NetLink) send(op uint32) error {
 	listener.seq++
-	pr := &netlinkProcMessage{}
+	pr := &NetLinkMessage{}
 	plen := binary.Size(pr.Data) + binary.Size(op)
 	pr.Header.Len = syscall.NLMSG_HDRLEN + uint32(plen)
 	pr.Header.Type = uint16(syscall.NLMSG_DONE)

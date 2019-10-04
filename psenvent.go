@@ -2,7 +2,7 @@
 // Authors: Dean
 // Date: 2019-10-04 19:53
 
-// 文件介绍
+// 基于Linux netlink Connector捕获进程事件
 
 package psevent
 
@@ -76,7 +76,7 @@ func Listen() (*PsEvent, error) {
 func (p *PsEvent) readEvents() {
 	buf := make([]byte, syscall.Getpagesize())
 
-	listener, _ := p.listener.(*netlinkListener)
+	listener, _ := p.listener.(*NetLink)
 
 	for {
 		if p.isDone() {
